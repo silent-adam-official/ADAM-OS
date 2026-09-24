@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ADAM OS — Integrated ADAM Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0b0906;
+    --void-2:#141009;
+    --ember:#c9450c;
+    --ember-bright:#ef6a2b;
+    --ember-dim:#5a2308;
+    --ash:#e9e2d4;
+    --smoke:#95897a;
+    --violet:#4b3c73;
+    --rule: rgba(233,226,212,0.14);
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:inherit; margin:0; padding:0;}
+  html{scroll-behavior:smooth; scroll-padding-top: env(safe-area-inset-top, 0px);}
+  html,body{background:var(--void);}
+  body{
+    color:var(--ash);
+    font-family:'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-size:17px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--ember-dim); color:var(--ash);}
+
+  h1,h2,h3{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    color:var(--ash);
+  }
+
+  a{color:var(--ember-bright);}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--ember-bright); outline-offset:4px;}
+
+  .glow-field{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(48vw 48vw at 50% 34%, rgba(201,69,12,0.24), rgba(201,69,12,0) 70%),
+      radial-gradient(60vw 60vw at 82% 78%, rgba(75,60,115,0.16), rgba(75,60,115,0) 70%);
+    animation: breathe 9s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{ opacity:0.75; transform:scale(1); }
+    50%{ opacity:1; transform:scale(1.06); }
+  }
+
+  section{position:relative; z-index:1;}
+
+  .wrap{max-width:760px; margin:0 auto; padding:0 24px;}
+  .wrap--narrow{max-width:620px;}
+
+  /* HERO */
+/* Hero Container - centers elements and fills viewport height */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 24px 32px;
+}
+
+/* Fullscreen Logo Styling - automatically fits within screen boundaries */
+.logo-mark {
+  width: 100%;
+  max-width: 85vw;
+  max-height: 50vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+  filter: drop-shadow(0 0 24px rgba(201,69,12,0.45));
+}
+
+.logo-mark img {
+  max-width: 100%;
+  max-height: 50vh;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Prevents overflow outside viewport */
+  display: block;
+}
+  .logo-mark__circle,
+  .logo-mark__square{
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .logo-mark__circle{
+    animation: logoPulse 4.5s ease-in-out infinite;
+  }
+  .logo-mark__square{
+    animation: logoSpin 14s linear infinite;
+  }
+  .logo-mark__dot{
+    animation: logoDot 4.5s ease-in-out infinite;
+  }
+  
+  /* Animated Scroll Indicator */
+.scroll-indicator {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--smoke);
+  margin-top: 24px;
+  animation: pulseScroll 2s infinite ease-in-out;
+}
+
+.scroll-indicator .arrow {
+  color: var(--ember-bright);
+  margin-left: 4px;
+}
+
+@keyframes pulseScroll {
+  0%, 100% { transform: translateY(0); opacity: 0.7; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+  @keyframes logoSpin{
+    from{ transform: rotate(45deg); }
+    to{ transform: rotate(405deg); }
+  }
+  @keyframes logoPulse{
+    0%, 100%{ opacity: 0.55; stroke-width: 2; }
+    50%{ opacity: 1; stroke-width: 2.6; }
+  }
+  @keyframes logoDot{
+    0%, 100%{ opacity: 0.6; r: 3.5; }
+    50%{ opacity: 1; r: 4.5; }
+  }
+
+  .boot{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:13px;
+    color:var(--smoke);
+    min-height:88px;
+    display:flex; flex-direction:column; gap:8px;
+    margin-bottom:40px;
+  }
+  .boot__line{
+    opacity:0;
+    max-width:36ch;
+  }
+  .boot__line.is-on{ animation: typeIn 0.5s ease forwards; }
+  .boot__caret{ color:var(--ember-bright); }
+  @keyframes typeIn{
+    from{ opacity:0; transform:translateY(4px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .hero__mark{
+    font-size:clamp(2.6rem, 9vw, 5.2rem);
+    line-height:0.98;
+    opacity:0;
+    letter-spacing:0.01em;
+  }
+  .hero__mark.is-revealed{ animation: markIn 1.1s cubic-bezier(.16,.9,.3,1) forwards; }
+  @keyframes markIn{
+    from{ opacity:0; filter:blur(6px); transform:translateY(10px) scale(0.98); }
+    to{ opacity:1; filter:blur(0); transform:translateY(0) scale(1); }
+  }
+  .hero__mark em{
+    font-style:italic;
+    color:var(--ember-bright);
+  }
+
+  .hero__sub{
+    margin-top:18px;
+    color:var(--smoke);
+    font-size:16px;
+    opacity:0;
+  }
+  .hero__sub.is-revealed{ animation: fadeUp 0.9s ease 0.15s forwards; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .hero__tag{
+    margin-top:28px;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.02em;
+    color:var(--smoke);
+    border:1px solid var(--rule);
+    border-radius:999px;
+    padding:7px 16px;
+    opacity:0;
+  }
+  .hero__tag.is-revealed{ animation: fadeUp 0.9s ease 0.3s forwards; }
+  .hero__tag .dot{ width:6px; height:6px; border-radius:50%; background:var(--ember-bright); box-shadow:0 0 8px var(--ember-bright); }
+
+  /* SECTIONS GENERAL */
+  .section{ padding:96px 24px; border-top:1px solid var(--rule); }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ember-bright);
+    letter-spacing:0.03em;
+    margin-bottom:18px;
+  }
+
+  /* MANIFESTO */
+  .manifesto p{
+    font-family:'Fraunces', Georgia, serif;
+    font-style:italic;
+    font-size:clamp(1.25rem, 3vw, 1.7rem);
+    line-height:1.55;
+    color:var(--ash);
+    text-align:center;
+  }
+  .manifesto p + p{ margin-top:20px; }
+  .manifesto__questions{
+    display:flex; flex-direction:column; gap:10px;
+    margin-bottom:36px;
+    font-family:'Inter', sans-serif;
+    font-style:normal;
+    font-size:16px;
+    color:var(--smoke);
+  }
+  .manifesto__questions span{ color:var(--ash); }
+  .manifesto__universal{
+    font-family:'Inter', sans-serif !important;
+    font-style:normal !important;
+    font-size:15.5px !important;
+    color:var(--smoke) !important;
+    line-height:1.7 !important;
+    max-width:52ch;
+    margin:24px auto 0 !important;
+  }
+
+  /* PATH */
+  .path__quote{
+    font-family:'Fraunces', Georgia, serif;
+    font-style:italic;
+    font-size:1.3rem;
+    color:var(--ember-bright);
+    margin-bottom:28px;
+    text-align:center;
+  }
+  .path__diagram{
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:24px 22px;
+    margin-bottom:48px;
+    text-align:center;
+    background:linear-gradient(180deg, var(--void-2), var(--void));
+  }
+  .path__diagram-quote{
+    font-family:'Fraunces', Georgia, serif;
+    font-style:italic;
+    font-size:1rem;
+    color:var(--ash);
+    line-height:1.6;
+  }
+  .path__diagram-chain{
+    margin-top:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    color:var(--ember-bright);
+  }
+  .section-intro{
+    font-family:'Inter', sans-serif;
+    font-size:15px;
+    color:var(--smoke);
+    max-width:52ch;
+    margin:0 auto 40px;
+    text-align:center;
+    line-height:1.7;
+  }
+  .path__list{ list-style:none; display:flex; flex-direction:column; }
+  .path__item{
+    display:grid;
+    grid-template-columns:44px 1fr;
+    gap:20px;
+    padding:26px 0;
+    border-top:1px solid var(--rule);
+  }
+  .path__item:last-child{ border-bottom:1px solid var(--rule); }
+  .path__num{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--smoke);
+    padding-top:4px;
+  }
+  .path__body h3{ font-size:1.05rem; font-weight:600; margin-bottom:8px; }
+  .path__subtitle{
+    font-family:'Inter', sans-serif;
+    font-weight:400;
+    font-size:0.7em;
+    color:var(--ember-bright);
+  }
+  .path__body p{ color:var(--smoke); font-size:15px; }
+  .path__body p + p{ margin-top:10px; }
+  .path__body code{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ember-bright);
+    font-size:0.92em;
+  }
+
+  /* EQUATION FLOW */
+  .flow{
+    display:flex; flex-direction:column; align-items:stretch;
+    gap:0;
+  }
+  .flow__node{
+    border:1px solid var(--rule);
+    border-radius:2px;
+    padding:18px 20px;
+    background:linear-gradient(180deg, var(--void-2), var(--void));
+  }
+  .flow__node h4{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ember-bright);
+    letter-spacing:0.02em;
+    margin-bottom:6px;
+  }
+  .flow__node p{ font-size:14.5px; color:var(--smoke); }
+  .flow__arrow{
+    align-self:center;
+    color:var(--smoke);
+    font-family:'IBM Plex Mono', monospace;
+    padding:10px 0;
+    font-size:14px;
+    text-align:center;
+    max-width:44ch;
+    margin:0 auto;
+    line-height:1.6;
+  }
+  .flow__arrow em{
+    color:var(--ember-bright);
+    font-style:normal;
+  }
+  .flow__result{
+    margin-top:6px;
+    text-align:center;
+    font-family:'Fraunces', Georgia, serif;
+    font-size:1.4rem;
+    color:var(--ash);
+  }
+  .flow__result em{ color:var(--ember-bright); font-style:italic; }
+
+  /* CTA */
+  .cta{ text-align:center; }
+  .cta h2{ font-size:clamp(1.6rem, 4vw, 2.2rem); margin-bottom:16px; }
+  .cta p{ color:var(--smoke); max-width:48ch; margin:0 auto 32px; }
+  .cta__buttons{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    letter-spacing:0.02em;
+    text-decoration:none;
+    padding:13px 24px;
+    border-radius:2px;
+    border:1px solid var(--rule);
+    color:var(--ash);
+    transition:border-color 0.2s ease, color 0.2s ease;
+    display:inline-block;
+  }
+  .btn:hover{ border-color:var(--ember-bright); color:var(--ember-bright); }
+  .btn--fill{
+    background:var(--ember);
+    border-color:var(--ember);
+    color:#120600;
+  }
+  .btn--fill:hover{ background:var(--ember-bright); border-color:var(--ember-bright); color:#120600; }
+  .btn--support{ border-color:var(--ember-dim); color:var(--ember-bright); }
+  .btn--support:hover{ border-color:var(--ember-bright); background:rgba(201,69,12,0.1); }
+
+  footer{
+    padding:40px 24px 56px;
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--smoke);
+  }
+
+  @media (max-width:560px){
+    .section{ padding:72px 20px; }
+    .hero{ padding-top:80px; }
+    body{ font-size:16px; }
+  }
+
+  /* PAGE CONTENT / BLUR */
+  .page-content{
+    transition: filter 0.45s ease;
+  }
+  .page-content.is-blurred{
+    filter: blur(16px) brightness(0.55);
+  }
+
+  /* PLAYER MODAL */
+  .player-modal{
+    position:fixed; inset:0; z-index:50;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    padding-top: calc(24px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    background: rgba(11,9,6,0.55);
+    opacity:0; visibility:hidden;
+    transition: opacity 0.4s ease;
+  }
+  .player-modal.is-open{ opacity:1; visibility:visible; }
+
+  .player-modal__close{
+    position:absolute; top:20px; right:20px;
+    z-index:2;
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid var(--rule);
+    background:rgba(11,9,6,0.6);
+    color:var(--ash);
+    font-size:16px;
+    cursor:pointer;
+  }
+  .player-modal__close:hover{ border-color:var(--ember-bright); color:var(--ember-bright); }
+
+  .player-modal__panel{
+    width:100%;
+    max-width:920px;
+  }
+
+  .player{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    background:var(--void-2);
+    border:1px solid var(--rule);
+    overflow:hidden;
+  }
+  .player video{
+    width:100%; height:100%;
+    display:block;
+    object-fit:contain;
+    background:#000;
+  }
+  .player__empty{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px;
+    text-align:center;
+    padding:24px;
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--smoke);
+    font-size:13px;
+    pointer-events:none;
+  }
+  .player__empty-sub{ font-size:11px; opacity:0.75; }
+
+  .player__controls{
+    position:absolute; left:0; right:0; bottom:0;
+    display:flex; align-items:center; gap:12px;
+    padding:12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background:linear-gradient(180deg, rgba(11,9,6,0), rgba(11,9,6,0.9) 40%);
+  }
+  .player__play{
+    width:34px; height:34px;
+    border-radius:50%;
+    background:var(--ember);
+    border:none;
+    color:#120600;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .player__play:hover{ background:var(--ember-bright); }
+  .player__icon-btn{
+    background:none; border:none;
+    color:var(--ash);
+    width:28px; height:28px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .player__icon-btn:hover{ color:var(--ember-bright); }
+  .player__time{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--smoke);
+    min-width:34px;
+    flex-shrink:0;
+  }
+  .player__bar{
+    flex:1;
+    height:4px;
+    background:rgba(233,226,212,0.18);
+    border-radius:2px;
+    cursor:pointer;
+    position:relative;
+  }
+  .player__bar-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    width:0%;
+    background:var(--ember-bright);
+    border-radius:2px;
+  }
+
+  @media (max-width:560px){
+    .player__time{ display:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+    .glow-field{ animation:none; opacity:0.9; }
+    .boot__line, .hero__mark, .hero__sub, .hero__tag{ opacity:1 !important; filter:none !important; transform:none !important; }
+    .logo-mark__circle, .logo-mark__square, .logo-mark__dot{ animation:none !important; opacity:1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-field" aria-hidden="true"></div>
+
+<div class="page-content" id="pageContent">
+
+<section class="hero">
+  <div class="logo-mark">
+    <img src="final.gif" alt="ADAM OS Logo">
+  </div>
+
+  <div class="boot" id="boot" aria-hidden="true"></div>
+
+  <h1 class="hero__mark" id="mark">A D A M &nbsp;<em>OS</em></h1>
+  <p class="hero__sub" id="sub">the integrated ADAM operating system</p>
+  <span class="hero__tag" id="tag"><span class="dot"></span> open source · seeking contributors</span>
+
+  <div class="scroll-indicator">
+    Scroll down to continue <span class="arrow">↓</span>
+  </div>
+</section>
+
+<section class="section manifesto">
+  <div class="wrap wrap--narrow">
+    <div class="manifesto__questions">
+      <div>Does magic actually exist? Perhaps it does, or <span>perhaps it doesn't.</span></div>
+      <div>Is there such a thing as cultivation of body and mind? Certainly there is — or <span>perhaps there isn't.</span></div>
+      <div>Do superhumans exist? They certainly do — or <span>perhaps they don't.</span></div>
+    </div>
+    <p>Let us search together — for the dark light of the inner Dark Sun, and turn knowledge into the shape of reality.</p>
+    <p class="manifesto__universal">Call it God, Source, Tao, the Self, or nothing at all — every tradition points to the same water. ADAM OS is not here to rename it. It is here to give you the tools to find it and the framework to experience it.</p>
+  </div>
+</section>
+
+<section class="section path">
+  <div class="wrap wrap--narrow">
+    <div class="eyebrow">Cultivation — Beginning Path</div>
+    <p class="path__quote">"Where the mind's focus goes, energy flows."</p>
+    <div class="path__diagram">
+      <p class="path__diagram-quote">"As you see, so you will think. As you think, so you will judge. As you judge, so your character will be shaped. As your character is shaped, so your actions will be. As your actions are, so your future will be."</p>
+      <p class="path__diagram-chain">Vision → Thought → Judgment → Character → Action → Future</p>
+    </div>
+    <ol class="path__list">
+      <li class="path__item">
+        <span class="path__num">01</span>
+        <div class="path__body">
+          <h3>Universal viewpoint <span class="path__subtitle">— the Truth Eye</span></h3>
+          <p>Step outside the self and look back at it — the eye of truth, seeing the whole before the part.</p>
+          <p>"Perhaps neither of us is wrong, yet neither has seen the whole truth." Therefore, even if we do not subscribe to another's perspective, let us learn to respect it. Our outlook on life shapes our thoughts, character, actions, and future.</p>
+        </div>
+      </li>
+      <li class="path__item">
+        <span class="path__num">02</span>
+        <div class="path__body">
+          <h3>Ask the inner mind</h3>
+          <p>Direct the question inward, not outward. The system does not answer to those who never ask.</p>
+        </div>
+      </li>
+      <li class="path__item">
+        <span class="path__num">03</span>
+        <div class="path__body">
+          <h3>Ready the body and mind</h3>
+          <p>Every tradition has a word for this discipline. The yogic path calls it <code>Brahmacharya</code> — conserving vital energy instead of spending it carelessly, then channeling it upward through <code>Prana-vayu</code>, the breath of life.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap wrap--narrow">
+    <div class="eyebrow">The Equation</div><div class="flow">
+      <div class="flow__node">
+        <h4>Brahmacharya</h4>
+        <p>Conservation of energy — the retention and stewardship of vital essence, rather than its dispersal.</p>
+      </div>
+      <div class="flow__arrow">↓ awakened by channeling that stored energy through <em>Prana-vayu</em>, the breath of life</div>
+      <div class="flow__node">
+        <h4>Ojas SUBLIMATION</h4>
+        <p>The refined vital essence generated when energy is conserved and rightly directed.</p>
+      </div>
+      <div class="flow__arrow">↓ manifests as</div>
+      <div class="flow__node">
+        <h4>Good fortune · self-confidence · mental clarity · creativity</h4>
+        <p>The visible traits of a mind and body under cultivation.</p>
+      </div>
+      <div class="flow__arrow">↓</div>
+    </div>
+    <p class="flow__result">Which is, in the end, simply <em>success</em>.</p>
+  </div>
+</section>
+
+<section class="section cta">
+  <div class="wrap wrap--narrow">
+    <h2>ADAM OS is open source.</h2>
+    <p>An operating system for the self — built in the open, for anyone, of any belief, searching for the same dark light.</p>
+    <div class="cta__buttons">
+	  <a  class="btn btn--fill" href="https://drive.google.com/file/d/1PaR8rXmQCy0z6XHwON7QtEB3prbReA5a/view?usp=sharing">▶ Watch the film</a>
+      <a class="btn" href="https://github.com/silent-adam-official/ADAM-OS">View on GitHub</a>
+      <!-- Replace # with your actual Patreon page URL -->
+      <a class="btn btn--support" href="https://www.patreon.com/ADAM_OS" target="_blank" rel="noopener">☕ Support on Patreon</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  ADAM OS — Integrated ADAM Operating System · open source
+</footer>
+
+</div><!-- /page-content -->
+
+<div class="player-modal" id="playerModal" role="dialog" aria-modal="true" aria-label="ADAM OS film" aria-hidden="true">
+  <button class="player-modal__close" type="button" id="closePlayer" aria-label="Close video">✕</button>
+  <div class="player-modal__panel">
+    <div class="player" id="player">
+      <!--
+        Replace the source below with your own hosted video (or audio) file.
+        Example: <source src="your-video.mp4" type="video/mp4">
+      -->
+      <video id="playerVideo" playsinline preload="metadata">
+	  <source src="Brahmacharya.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="player__empty" id="playerEmpty">
+        <p>No video source set yet.</p>
+        <p class="player__empty-sub">Add your file: &lt;source src="Brahmacharya.mp4" type="video/mp4"&gt;</p>
+      </div>
+      <div class="player__controls">
+        <button class="player__play" id="playToggle" type="button" aria-label="Play">
+          <svg id="iconPlay" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="iconPause" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display:none"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+        </button>
+        <span class="player__time" id="timeCurrent">0:00</span>
+        <div class="player__bar" id="progressBar">
+          <div class="player__bar-fill" id="progressFill"></div>
+        </div>
+        <span class="player__time" id="timeDuration">0:00</span>
+        <button class="player__icon-btn" id="muteToggle" type="button" aria-label="Mute">
+          <svg id="iconVolOn" viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M3 10v4h4l5 5V5L7 10H3z"/></svg>
+          <svg id="iconVolOff" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:none"><path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2 2.5 2.5-1.4 1.4L15.6 13.4l-2.5 2.5-1.4-1.4 2.5-2.5-2.5-2.5 1.4-1.4 2.5 2.5 2.5-2.5 1.4 1.4z"/></svg>
+        </button>
+        <button class="player__icon-btn" id="fullscreenToggle" type="button" aria-label="Fullscreen">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M4 9V4h5v2H6v3H4zm16 0V4h-5v2h3v3h2zM4 15v5h5v-2H6v-3H4zm16 0v5h-5v-2h3v-3h2z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bootEl = document.getElementById('boot');
+  var mark = document.getElementById('mark');
+  var sub = document.getElementById('sub');
+  var tag = document.getElementById('tag');
+
+  var lines = [
+    'query > does magic exist?',
+    'query > is there cultivation of body and mind?',
+    'query > do superhumans exist?'
+  ];
+
+  if (reduced) {
+    lines.forEach(function(t){
+      var d = document.createElement('div');
+      d.className = 'boot__line is-on';
+      d.textContent = t;
+      bootEl.appendChild(d);
+    });
+    mark.classList.add('is-revealed');
+    sub.classList.add('is-revealed');
+    tag.classList.add('is-revealed');
+    return;
+  }
+
+  var i = 0;
+  function nextLine(){
+    if (i >= lines.length) {
+      setTimeout(function(){
+        mark.classList.add('is-revealed');
+        sub.classList.add('is-revealed');
+        tag.classList.add('is-revealed');
+      }, 250);
+      return;
+    }
+    var d = document.createElement('div');
+    d.className = 'boot__line';
+    d.textContent = lines[i];
+    bootEl.appendChild(d);
+    requestAnimationFrame(function(){ d.classList.add('is-on'); });
+    i++;
+    setTimeout(nextLine, 650);
+  }
+  setTimeout(nextLine, 400);
+})();
+
+// --- Video popup + custom player ---
+(function(){
+  var openBtn = document.getElementById('openPlayer');
+  var closeBtn = document.getElementById('closePlayer');
+  var modal = document.getElementById('playerModal');
+  var pageContent = document.getElementById('pageContent');
+  var video = document.getElementById('playerVideo');
+  var playerBox = document.getElementById('player');
+  var emptyState = document.getElementById('playerEmpty');
+
+  var playToggle = document.getElementById('playToggle');
+  var iconPlay = document.getElementById('iconPlay');
+  var iconPause = document.getElementById('iconPause');
+  var timeCurrent = document.getElementById('timeCurrent');
+  var timeDuration = document.getElementById('timeDuration');
+  var progressBar = document.getElementById('progressBar');
+  var progressFill = document.getElementById('progressFill');
+  var muteToggle = document.getElementById('muteToggle');
+  var iconVolOn = document.getElementById('iconVolOn');
+  var iconVolOff = document.getElementById('iconVolOff');
+  var fullscreenToggle = document.getElementById('fullscreenToggle');
+
+  function hasSource(){
+    return !!(video.currentSrc || video.querySelector('source'));
+  }
+  emptyState.style.display = hasSource() ? 'none' : 'flex';
+
+  function openModal(){
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    pageContent.classList.add('is-blurred');
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+  function closeModal(){
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    pageContent.classList.remove('is-blurred');
+    document.body.style.overflow = '';
+    video.pause();
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', function(e){
+    if (e.target === modal) closeModal();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+  });
+
+  function formatTime(sec){
+    if (!isFinite(sec) || isNaN(sec)) return '0:00';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function togglePlay(){
+    if (!hasSource()) return;
+    if (video.paused) { video.play(); } else { video.pause(); }
+  }
+  playToggle.addEventListener('click', togglePlay);
+  video.addEventListener('click', togglePlay);
+
+  video.addEventListener('play', function(){
+    iconPlay.style.display = 'none';
+    iconPause.style.display = '';
+    playToggle.setAttribute('aria-label', 'Pause');
+  });
+  video.addEventListener('pause', function(){
+    iconPlay.style.display = '';
+    iconPause.style.display = 'none';
+    playToggle.setAttribute('aria-label', 'Play');
+  });
+
+  video.addEventListener('loadedmetadata', function(){
+    timeDuration.textContent = formatTime(video.duration);
+  });
+  video.addEventListener('timeupdate', function(){
+    timeCurrent.textContent = formatTime(video.currentTime);
+    if (video.duration) {
+      progressFill.style.width = (video.currentTime / video.duration * 100) + '%';
+    }
+  });
+
+  function seek(e){
+    if (!video.duration) return;
+    var rect = progressBar.getBoundingClientRect();
+    var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+    var pct = Math.min(1, Math.max(0, x / rect.width));
+    video.currentTime = pct * video.duration;
+  }
+  progressBar.addEventListener('click', seek);
+
+  muteToggle.addEventListener('click', function(){
+    video.muted = !video.muted;
+    iconVolOn.style.display = video.muted ? 'none' : '';
+    iconVolOff.style.display = video.muted ? '' : 'none';
+  });
+
+  fullscreenToggle.addEventListener('click', function(){
+    var el = playerBox;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen();
+    } else if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen(); // iOS Safari
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
