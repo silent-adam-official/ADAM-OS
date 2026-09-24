@@ -91,8 +91,6 @@ Good fortune · Self-confidence · Mental clarity · Creativity
 ADAM OS is an operating system for the self — built in the open, for anyone, of any belief, searching for the same dark light.
 
 - 🎬 [Watch the film](https://drive.google.com/file/d/1PaR8rXmQCy0z6XHwON7QtEB3prbReA5a/view?usp=sharing)
-- 🐙 [View on GitHub](https://github.com/silent-adam-official/ADAM-OS)
-- ☕ [Support on Patreon](https://www.patreon.com/ADAM_OS)
 
 ---
 
@@ -109,7 +107,7 @@ ADAM OS is open source and actively seeking contributors. Whether you work in co
 
 ## Support
 
-If ADAM OS resonates with you, consider supporting its development on [Patreon](https://www.patreon.com/ADAM_OS).
+If ADAM OS resonates with you, consider supporting its development on - ☕ [Support on Patreon](https://www.patreon.com/ADAM_OS)
 
 ---
 
